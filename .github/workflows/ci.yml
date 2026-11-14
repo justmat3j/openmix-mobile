@@ -33,7 +33,7 @@ jobs:
           cp target/release/openmix dist/openmix
           cp LICENSE README.md THIRD_PARTY_NOTICES.md dist/
           tar -czf dist/openmix-linux-x86_64.tar.gz -C dist openmix LICENSE README.md THIRD_PARTY_NOTICES.md
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: openmix-linux-x86_64
           path: dist/openmix-linux-x86_64.tar.gz
