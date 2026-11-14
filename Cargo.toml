@@ -1,0 +1,70 @@
+[package]
+name = "openmix"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.95"
+description = "A native local music player and transition mixer"
+license = "MIT"
+
+[lib]
+name = "openmix"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "openmix"
+path = "src/main.rs"
+
+[dependencies]
+directories = "6.0.0"
+image = { version = "0.25.10", default-features = false, features = ["jpeg", "png"] }
+eframe = { version = "0.37.0", default-features = false, features = ["clipboard", "default_fonts", "glow", "system_fonts", "android-native-activity", "x11", "wayland"] }
+reqwest = { version = "0.13.5", default-features = false, features = ["blocking", "charset", "http2", "json", "rustls"] }
+rodio = { version = "0.23.0", features = ["playback", "symphonia-mp3", "symphonia-wav"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+symphonia = { version = "0.5.5", features = ["mp3", "wav", "pcm"] }
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
+rfd = "0.17.2"
+
+[target.'cfg(target_os = "android")'.dependencies]
+android-activity = { version = "0.6.1", features = ["native-activity"] }
+jni = "0.22.4"
+
+[package.metadata.android]
+package = "studio.openmix.mobile"
+apk_name = "openmix"
+build_targets = ["aarch64-linux-android"]
+strip = "strip"
+resources = "android_resources/res"
+
+[package.metadata.android.sdk]
+min_sdk_version = 26
+target_sdk_version = 33
+
+[package.metadata.android.application]
+label = "OpenMix"
+theme = "@android:style/Theme.DeviceDefault.NoActionBar"
+icon = "@mipmap/ic_launcher"
+
+[package.metadata.android.application.activity]
+config_changes = "orientation|keyboardHidden|screenSize"
+launch_mode = "singleTop"
+exported = true
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.READ_EXTERNAL_STORAGE"
+max_sdk_version = 32
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.READ_MEDIA_AUDIO"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.WRITE_EXTERNAL_STORAGE"
+max_sdk_version = 28
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true

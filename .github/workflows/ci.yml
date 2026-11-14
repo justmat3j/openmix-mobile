@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-x11:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - name: Install native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes build-essential pkg-config libasound2-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libfontconfig1-dev libgl1-mesa-dev
+      - name: Check formatting
+        run: cargo fmt --check
+      - name: Check application and add-on API
+        run: cargo check --locked
+      - name: Build release executable
+        run: cargo build --release --locked
+      - name: Package executable and notices
+        run: |
+          mkdir -p dist
+          cp target/release/openmix dist/openmix
+          cp LICENSE README.md THIRD_PARTY_NOTICES.md dist/
+          tar -czf dist/openmix-linux-x86_64.tar.gz -C dist openmix LICENSE README.md THIRD_PARTY_NOTICES.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openmix-linux-x86_64
+          path: dist/openmix-linux-x86_64.tar.gz
+          if-no-files-found: error
+          retention-days: 14
